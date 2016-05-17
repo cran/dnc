@@ -185,7 +185,7 @@ require("tcltk")
   .llik.wrap <- function(x){
     cLogLikelihood(Y,x*mu,c(n,p,TT),a3,Es)
   }
-  Optim <- optimize(f=.llik.wrap,interval=c(1e-20,200),maximum=TRUE)
+  Optim <- optimize(f=.llik.wrap,interval=c(1e-20,10*n),maximum=TRUE)
   Er <- Er*Optim$max
   mu <- mu*Optim$max
   rm(Optim,.llik.wrap,VV)
@@ -370,7 +370,7 @@ require("tcltk")
   .llik.wrap <- function(x){
     cLogLikelihood(Y,x*mu,c(n,p,TT),a3,Es)
   }
-  Optim <- optimize(f=.llik.wrap,interval=c(1e-20,200),maximum=TRUE)
+  Optim <- optimize(f=.llik.wrap,interval=c(1e-20,10*n),maximum=TRUE)
   Er <- Er*Optim$max
   mu <- mu*Optim$max
   rm(Optim,.llik.wrap,VV)

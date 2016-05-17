@@ -19,7 +19,7 @@ Rcpp::List cVBnoClust(const IntegerVector & dims,
                       const NumericVector & BI2,
                       const NumericVector & A3,
                       const NumericVector & B3,
-                      const NumericVector & ES,
+                      const NumericVector & ES1,
                       const NumericVector & ES2){
 
 RNGScope scope;
@@ -47,7 +47,7 @@ arma::colvec ai2= Rcpp::as<arma::colvec>(AI2);
 arma::colvec bi2= Rcpp::as<arma::colvec>(BI2);
 double a3=Rcpp::as<double>(A3);
 double b3=Rcpp::as<double>(B3);
-arma::colvec Es=Rcpp::as<arma::colvec>(ES);
+arma::colvec Es1=Rcpp::as<arma::colvec>(ES1);
 arma::colvec Es2=Rcpp::as<arma::colvec>(ES2);
 arma::colvec ai4= arma::zeros(n,1);
 arma::colvec bi4= arma::zeros(n,1);
@@ -66,8 +66,8 @@ for(int i=0;i<(n-1);i++){
 for(int j=i+1;j<n;j++){
 
 mat1by1 = trans(mu.slice(i).col(tt))*mu.slice(j).col(tt);
-const1 = b3+a3*a3+2*a3*Es(j)*mat1by1(0);
-const2 = b3+a3*a3+2*a3*Es(i)*mat1by1(0);
+const1 = b3+a3*a3+2*a3*Es1(j)*mat1by1(0);
+const2 = b3+a3*a3+2*a3*Es1(i)*mat1by1(0);
 mat1by1 = mat1by1*mat1by1 + 
 trans(mu.slice(j).col(tt))*Sig.slice(i).submat(tt*p,0,(tt+1)*p-1,p-1)*mu.slice(j).col(tt) +
 trans(mu.slice(i).col(tt))*Sig.slice(j).submat(tt*p,0,(tt+1)*p-1,p-1)*mu.slice(i).col(tt);
@@ -94,8 +94,8 @@ for(int i=0; i<n;i++){
 cvecp1 = arma::zeros(p,1);
 for(int j=0; j<n;j++){
 if(j != i){
-cvecp1 = cvecp1 + ( (Y(i,j,0)-0.5)*Es(j)+(Y(j,i,0)-0.5)*Es(i)- 
-a3*(EOm(i,j,0)*Es(j)+EOm(j,i,0)*Es(i)))*mu.slice(j).col(0);
+cvecp1 = cvecp1 + ( (Y(i,j,0)-0.5)*Es1(j)+(Y(j,i,0)-0.5)*Es1(i)- 
+a3*(EOm(i,j,0)*Es1(j)+EOm(j,i,0)*Es1(i)))*mu.slice(j).col(0);
 }
 }
 cvecp1 = cvecp1 + ai2(i)*bi2(i)*mu.slice(i).col(1);
@@ -124,8 +124,8 @@ for(int tt=1;tt<TT-1;tt++){
 cvecp1 = arma::zeros(p,1);
 for(int j=0; j<n;j++){
 if(j != i){
-cvecp1 = cvecp1 + ( (Y(i,j,tt)-0.5)*Es(j)+(Y(j,i,tt)-0.5)*Es(i)- 
-a3*(EOm(i,j,tt)*Es(j)+EOm(j,i,tt)*Es(i)))*mu.slice(j).col(tt);
+cvecp1 = cvecp1 + ( (Y(i,j,tt)-0.5)*Es1(j)+(Y(j,i,tt)-0.5)*Es1(i)- 
+a3*(EOm(i,j,tt)*Es1(j)+EOm(j,i,tt)*Es1(i)))*mu.slice(j).col(tt);
 }
 }
 cvecp1 = cvecp1 + ai2(i)*bi2(i)*(mu.slice(i).col(tt-1)+mu.slice(i).col(tt+1));
@@ -154,8 +154,8 @@ mu.slice(i).col(tt) = Sig.slice(i).submat(tt*p,0,(tt+1)*p-1,p-1)*cvecp1;
 cvecp1 = arma::zeros(p,1);
 for(int j=0; j<n;j++){
 if(j != i){
-cvecp1 = cvecp1 + ( (Y(i,j,TT-1)-0.5)*Es(j)+(Y(j,i,TT-1)-0.5)*Es(i)- 
-a3*(EOm(i,j,TT-1)*Es(j)+EOm(j,i,TT-1)*Es(i)))*mu.slice(j).col(TT-1);
+cvecp1 = cvecp1 + ( (Y(i,j,TT-1)-0.5)*Es1(j)+(Y(j,i,TT-1)-0.5)*Es1(i)- 
+a3*(EOm(i,j,TT-1)*Es1(j)+EOm(j,i,TT-1)*Es1(i)))*mu.slice(j).col(TT-1);
 }
 }
 cvecp1 = cvecp1 + ai2(i)*bi2(i)*mu.slice(i).col(TT-2);
@@ -211,7 +211,7 @@ for(int tt=0;tt<TT;tt++){
 for(int i=0;i<n-1;i++){
 for(int j=i+1;j<n;j++){
 if(j != i){
-mat1by1 = (EOm(i,j,tt)*Es(j) + EOm(j,i,tt)*Es(i))*
+mat1by1 = (EOm(i,j,tt)*Es1(j) + EOm(j,i,tt)*Es1(i))*
 trans(mu.slice(i).col(tt))*mu.slice(j).col(tt);
 a3 = a3 + Y(i,j,tt)+Y(j,i,tt)-1.0-mat1by1(0);
 b3= b3 + EOm(i,j,tt) + EOm(j,i,tt);
@@ -252,7 +252,7 @@ const1 = const2*(const1-1);
 
 ai4(j) = const1;
 bi4(j) = const2;
-Es(j) = const1+sqrt(const2)*R::dnorm(const1/sqrt(const2),0.0,1.0,0)/
+Es1(j) = const1+sqrt(const2)*R::dnorm(const1/sqrt(const2),0.0,1.0,0)/
 R::pnorm(const1/sqrt(const2),0.0,1.0,1,0);
 Es2(j) = const1*const1 + const2 +const1*sqrt(const2)*R::dnorm(const1/sqrt(const2),0.0,1.0,0)/
 R::pnorm(const1/sqrt(const2),0.0,1.0,1,0);
@@ -261,8 +261,8 @@ R::pnorm(const1/sqrt(const2),0.0,1.0,1,0);
 
 //Recompute with constraint in place
 /*
-const3=n/sum(Es);
-Es = Es*const3;
+const3=n/sum(Es1);
+Es1 = Es1*const3;
 Es2 = Es2*const3*const3;
 */
 
@@ -276,6 +276,6 @@ b0 = b0 + 0.5*(mat1by1(0) +
 arma::trace(Sig.slice(i).submat(0,0,p-1,p-1)));
 }
 
-return Rcpp::List::create(EOm,mu,Sig,ai2,bi2,a0,b0,a3,b3,Es,Es2,ai4,bi4);
+return Rcpp::List::create(EOm,mu,Sig,ai2,bi2,a0,b0,a3,b3,Es1,Es2,ai4,bi4);
 
 }

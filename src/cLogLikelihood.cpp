@@ -7,7 +7,7 @@ double cLogLikelihood(const NumericVector & Yvec,
                       const NumericVector & Xvec, 
                       const IntegerVector & DIMS, 
                       const NumericVector & ALPHA,
-                      const NumericVector & SS){
+                      const NumericVector & SS1){
 
 
 /*Dims is c(n,p,TT)
@@ -17,7 +17,7 @@ Rcpp::IntegerVector dims(DIMS);
 arma::cube X(Xvec.begin(),dims[1],dims[2],dims[0]);
 arma::cube Y(Yvec.begin(),dims[0],dims[0],dims[2]);
 double alpha = Rcpp::as<double>(ALPHA);
-arma::colvec ss = Rcpp::as<arma::colvec>(SS);
+arma::colvec ss1 = Rcpp::as<arma::colvec>(SS1);
 
 double ret =0, eta=0;
 
@@ -29,7 +29,7 @@ for(int j=0;j<dims(0);j++)
 {
 if(j!=i)
 {
-eta = alpha + ss(j)*arma::dot(X.slice(i).col(tt),X.slice(j).col(tt));
+eta = alpha + ss1(j)*arma::dot(X.slice(i).col(tt),X.slice(j).col(tt));
 ret += Y(i,j,tt)*eta-log(1+exp(eta));
 }
 }

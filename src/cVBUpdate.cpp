@@ -23,7 +23,7 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
             const NumericMatrix & NU,
             const NumericVector & A3,
             const NumericVector & B3,
-            const NumericVector & ES,
+            const NumericVector & ES1,
             const NumericVector & ES2,
             const NumericMatrix & GAM){
   
@@ -60,7 +60,7 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   arma::colvec kappas = arma::zeros(M,1);
   double a3=Rcpp::as<double>(A3);
   double b3=Rcpp::as<double>(B3);
-  arma::colvec Es=Rcpp::as<arma::colvec>(ES);
+  arma::colvec Es1=Rcpp::as<arma::colvec>(ES1);
   arma::colvec Es2=Rcpp::as<arma::colvec>(ES2);
   arma::cube Bitbar(BitbarVec.begin(),TT,M,n);
   arma::mat GamStar = Rcpp::as<arma::mat>(GAMSTAR);
@@ -81,8 +81,8 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   for(int j=i+1;j<n;j++){
   
   mat1by1 = trans(mu.slice(i).col(tt))*mu.slice(j).col(tt);
-  const1 = b3+a3*a3+2*a3*Es(j)*mat1by1(0);
-  const2 = b3+a3*a3+2*a3*Es(i)*mat1by1(0);
+  const1 = b3+a3*a3+2*a3*Es1(j)*mat1by1(0);
+  const2 = b3+a3*a3+2*a3*Es1(i)*mat1by1(0);
   mat1by1 = mat1by1*mat1by1 + 
   trans(mu.slice(j).col(tt))*Sig.slice(i).submat(tt*p,0,(tt+1)*p-1,p-1)*mu.slice(j).col(tt) +
   trans(mu.slice(i).col(tt))*Sig.slice(j).submat(tt*p,0,(tt+1)*p-1,p-1)*mu.slice(i).col(tt);
@@ -112,8 +112,8 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   cvecp1 = arma::zeros(p,1);
   for(int j=0; j<n;j++){
   if(j != i){  
-  cvecp1 = cvecp1 + ( (Y(i,j,0)-0.5)*Es(j)+(Y(j,i,0)-0.5)*Es(i)- 
-  a3*(EOm(i,j,0)*Es(j)+EOm(j,i,0)*Es(i)))*mu.slice(j).col(0);
+  cvecp1 = cvecp1 + ( (Y(i,j,0)-0.5)*Es1(j)+(Y(j,i,0)-0.5)*Es1(i)- 
+  a3*(EOm(i,j,0)*Es1(j)+EOm(j,i,0)*Es1(i)))*mu.slice(j).col(0);
   }
   }
   cvecp2 = arma::zeros(p,1);
@@ -148,8 +148,8 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   cvecp1 = arma::zeros(p,1);
   for(int j=0; j<n;j++){
   if(j != i){
-  cvecp1 = cvecp1 + ( (Y(i,j,tt)-0.5)*Es(j)+(Y(j,i,tt)-0.5)*Es(i)- 
-  a3*(EOm(i,j,tt)*Es(j)+EOm(j,i,tt)*Es(i)))*mu.slice(j).col(tt);
+  cvecp1 = cvecp1 + ( (Y(i,j,tt)-0.5)*Es1(j)+(Y(j,i,tt)-0.5)*Es1(i)- 
+  a3*(EOm(i,j,tt)*Es1(j)+EOm(j,i,tt)*Es1(i)))*mu.slice(j).col(tt);
   }
   }
   cvecp2 = arma::zeros(p,1);
@@ -324,7 +324,7 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   for(int i=0;i<n-1;i++){
   for(int j=i+1;j<n;j++){
   if(j != i){
-  mat1by1 = (EOm(i,j,tt)*Es(j) + EOm(j,i,tt)*Es(i))*
+  mat1by1 = (EOm(i,j,tt)*Es1(j) + EOm(j,i,tt)*Es1(i))*
   trans(mu.slice(i).col(tt))*mu.slice(j).col(tt);
   a3 = a3 + Y(i,j,tt)+Y(j,i,tt)-1.0-mat1by1(0);
   b3= b3 + EOm(i,j,tt) + EOm(j,i,tt);
@@ -364,7 +364,7 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   ai4(j) = const2*(ai4(j)-1);
   bi4(j) = const2;
   
-  Es(j) = ai4(j)+sqrt(const2)*R::dnorm(ai4(j)/sqrt(const2),0.0,1.0,0)/
+  Es1(j) = ai4(j)+sqrt(const2)*R::dnorm(ai4(j)/sqrt(const2),0.0,1.0,0)/
   R::pnorm(ai4(j)/sqrt(const2),0.0,1.0,1,0);
   Es2(j) = ai4(j)*ai4(j) + const2 +ai4(j)*sqrt(const2)*R::dnorm(ai4(j)/sqrt(const2),0.0,1.0,0)/
   R::pnorm(ai4(j)/sqrt(const2),0.0,1.0,1,0);
@@ -374,8 +374,8 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   
   //Recompute with constraint in place
   /*
-  const3=n/sum(Es);
-  Es = Es*const3;
+  const3=n/sum(Es1);
+  Es1 = Es1*const3;
   Es2 = Es2*const3*const3;
   */
   
@@ -402,14 +402,14 @@ Rcpp::List cVBUpdate(const IntegerVector & DIMS,
   
 /*  
   return Rcpp::List::create(EOm,mu,Sig,Bi0g,Bitbar,Bithk,Er,Er2,ai2,bi2,nu,
-              a3,b3,Es,Es2,Gam,cijt,ai1,ai4,bi4,bi1,kappas);
+              a3,b3,Es1,Es2,Gam,cijt,ai1,ai4,bi4,bi1,kappas);
   */
   for(int hh=0;hh<M;hh++){
     nu.row(hh) = nu.row(hh)*kappas(hh);
   }
 
   return Rcpp::List::create(EOm,mu,Sig,Bi0g,Bitbar,Bithk,Er,Er2,ai2,bi2,nu,
-              a3,b3,Es,Es2,Gam,ai1,ai4,bi4,bi1);
+              a3,b3,Es1,Es2,Gam,ai1,ai4,bi4,bi1);
 
 }  
 

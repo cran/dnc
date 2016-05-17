@@ -7,7 +7,7 @@ Rcpp::List drawXZar(const IntegerVector & dims,
                     const NumericVector & XVec,
                     const NumericVector & Yvec,
                     const NumericVector & OmVec,
-                    const NumericVector & SS,
+                    const NumericVector & SS1,
                     const NumericVector & ALPHA,
                     const NumericVector & TAU,
                     const NumericVector & RR,
@@ -27,7 +27,7 @@ int n=dims(0),p=dims(1), TT=dims(2), M=dims(3);
 arma::cube X(XVec.begin(),p,TT,n);
 arma::cube Y(Yvec.begin(),n,n,TT);
 arma::cube Om(OmVec.begin(),n,n,TT);
-arma::colvec ss=Rcpp::as<arma::colvec>(SS);
+arma::colvec ss1=Rcpp::as<arma::colvec>(SS1);
 double alpha=Rcpp::as<double>(ALPHA);
 arma::colvec tau=Rcpp::as<arma::colvec>(TAU);
 arma::colvec rr=Rcpp::as<arma::colvec>(RR);
@@ -65,9 +65,9 @@ Sigit.diag() += tau(i);
 for(int j=0; j<n;j++){
 if(j != i){
 cvecp1 = cvecp1 + 
-( (Y(i,j,tt)-0.5-alpha*Om(i,j,tt))*ss(j)+(Y(j,i,tt)-0.5-alpha*Om(j,i,tt))*ss(i) )*X.slice(j).col(tt);
+( (Y(i,j,tt)-0.5-alpha*Om(i,j,tt))*ss1(j)+(Y(j,i,tt)-0.5-alpha*Om(j,i,tt))*ss1(i) )*X.slice(j).col(tt);
 Sigit = Sigit +
-(Om(i,j,tt)*ss(j)*ss(j) + Om(j,i,tt)*ss(i)*ss(i))*X.slice(j).col(tt)*trans(X.slice(j).col(tt));
+(Om(i,j,tt)*ss1(j)*ss1(j) + Om(j,i,tt)*ss1(i)*ss1(i))*X.slice(j).col(tt)*trans(X.slice(j).col(tt));
 }
 }
 Sigit = inv_sympd(Sigit);
@@ -106,7 +106,7 @@ for(int tt=0;tt<TT;tt++){
 for(int i=0;i<n-1;i++){
 for(int j=i+1;j<n;j++){
 if(j != i){
-mat1by1 = (Om(i,j,tt)*ss(j) + Om(j,i,tt)*ss(i))*
+mat1by1 = (Om(i,j,tt)*ss1(j) + Om(j,i,tt)*ss1(i))*
 trans(X.slice(i).col(tt))*X.slice(j).col(tt);
 a3 = a3 + Y(i,j,tt)+Y(j,i,tt)-1.0-mat1by1(0);
 b3= b3 + Om(i,j,tt) + Om(j,i,tt);

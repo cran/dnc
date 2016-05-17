@@ -8,7 +8,7 @@ double cposteriorNoOmega(const IntegerVector & dims,
                          const NumericVector & XVec,
                          const NumericVector & RR,
                          const NumericVector & TAU,
-                         const NumericVector & SS,
+                         const NumericVector & SS1,
                          const NumericVector & ALPHA,
                          const NumericMatrix & BETA,
                          const IntegerMatrix & Z,
@@ -31,7 +31,7 @@ double cposteriorNoOmega(const IntegerVector & dims,
   arma::colvec rr= Rcpp::as<arma::colvec>(RR);
   arma::colvec tau= Rcpp::as<arma::colvec>(TAU);
   arma::mat uu = Rcpp::as<arma::mat>(UU);
-  arma::colvec ss=Rcpp::as<arma::colvec>(SS);
+  arma::colvec ss1=Rcpp::as<arma::colvec>(SS1);
   double alpha = Rcpp::as<double>(ALPHA);
   arma::mat Beta = Rcpp::as<arma::mat>(BETA);
   arma::mat GamStar = Rcpp::as<arma::mat>(GAMSTAR);
@@ -50,7 +50,7 @@ double cposteriorNoOmega(const IntegerVector & dims,
 {
   if(j!=i)
 {
-  eta = alpha + ss(j)*arma::dot(X.slice(i).col(tt),X.slice(j).col(tt));
+  eta = alpha + ss1(j)*arma::dot(X.slice(i).col(tt),X.slice(j).col(tt));
   ret += Y(i,j,tt)*eta-log(1+exp(eta));
 }
 }
@@ -61,7 +61,7 @@ double cposteriorNoOmega(const IntegerVector & dims,
   ret -= 0.5*alpha*alpha/b3Star;
   
   for(int i=0;i<n;i++){
-  ret -= ss(i) - log(tau(i)) +rr(i)*tau(i)/cc - (a2Star-1)*log(tau(i)) +tau(i)/b2Star;
+  ret -= ss1(i) - log(tau(i)) +rr(i)*tau(i)/cc - (a2Star-1)*log(tau(i)) +tau(i)/b2Star;
   }
   
   for(int i=0;i<n;i++){

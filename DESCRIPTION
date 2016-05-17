@@ -1,7 +1,7 @@
 Package: dnc
 Type: Package
 Title: Dynamic Network Clustering
-Version: 1.1
+Version: 1.2
 Date: 2016-05-06
 Author: Daniel K. Sewell
 Maintainer: Dan Sewell <daniel-sewell@uiowa.edu>
@@ -13,6 +13,6 @@ LinkingTo: Rcpp, RcppArmadillo
 Depends: R (>= 3.2.3)
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2016-05-14 19:51:39 UTC; daniel-admin
+Packaged: 2016-05-16 22:06:35 UTC; daniel-admin
 Repository: CRAN
-Date/Publication: 2016-05-14 23:36:56
+Date/Publication: 2016-05-17 01:13:05
